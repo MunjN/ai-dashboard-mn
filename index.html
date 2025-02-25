@@ -38,37 +38,23 @@
 
   <script>
     (async function () {
-      const backendUrl='' 
-      const correctPassword='' 
-      const embedUrl='' 
-      const reportId=''
+      let backendUrl, correctPassword, embedUrl, reportId; // 🔹 Use let instead of const
 
       try {
         console.log("Fetching /config...");
-        const backendUrl = "https://ai-dashboard-mn-backend.onrender.com";
-        const configResponse = await fetch(`${backendUrl}/config`);
-
+        const configResponse = await fetch("https://ai-dashboard-mn-backend.onrender.com/config"); // 🔹 Directly use backend URL
 
         if (!configResponse.ok) {
           throw new Error(`HTTP error! Status: ${configResponse.status}`);
         }
 
-        const text = await configResponse.text();
-        console.log("Raw response:", text); // Debugging step
-        
-        // Ensure it's valid JSON before parsing
-        try {
-          const configData = JSON.parse(text);
-          console.log("Parsed JSON:", configData);
+        const configData = await configResponse.json();
+        console.log("Parsed JSON:", configData);
 
-          backendUrl = configData.backendUrl;
-          correctPassword = configData.correctPassword;
-          embedUrl = configData.embedUrl;
-          reportId = configData.reportId;
-        } catch (jsonError) {
-          console.error("JSON parsing error:", jsonError);
-          return;
-        }
+        backendUrl = configData.backendUrl;
+        correctPassword = configData.correctPassword;
+        embedUrl = configData.embedUrl;
+        reportId = configData.reportId;
       } catch (error) {
         console.error("Failed to fetch configuration:", error);
         return;
@@ -139,7 +125,6 @@
         }
       }
 
-      // Prompt for password before initializing
       if (requestPassword()) {
         document.getElementById("reportContainer").style.display = "block";
         initialize();
