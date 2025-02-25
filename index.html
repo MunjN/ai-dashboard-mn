@@ -1,76 +1,116 @@
-<script>
-  (async function () {
-    const backendUrl = "https://ai-dashboard-mn-backend.onrender.com";
-    const correctPassword = "ATTIC";
-    
-    function requestPassword() {
-      const enteredPassword = prompt("Please enter the password to access the dashboard:");
-      return enteredPassword === correctPassword;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Dashboard Embedded</title>
+  <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.1/dist/powerbi.min.js"></script>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      margin: 0;
+      font-family: Arial, sans-serif;
     }
 
-    let embedToken = null;
-    const embedUrl = "https://app.powerbi.com/reportEmbed?reportId=15a67320-0aed-4917-b7ce-5c09a3b8bb79&groupId=49d1c1dc-0da0-4f42-ad72-40543f62dff8&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUNBTkFEQS1DRU5UUkFMLXJlZGlyZWN0LmFuYWx5c2lzLndpbmRvd3MubmV0IiwiZW1iZWRGZWF0dXJlcyI6eyJ1c2FnZU1ldHJpY3NWTmV4dCI6dHJ1ZX19";
-
-    async function fetchEmbedToken() {
-      const response = await fetch(`${backendUrl}/embed-token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (!response.ok) throw new Error('Failed to get embed token');
-      const data = await response.json();
-      embedToken = data.token;
+    h1 {
+      color: #f8ac14;
+      text-align: center; 
+      font-family: Verdana;
     }
 
-    function embedReport() {
-      const models = window["powerbi-client"].models;
-      const config = {
-        type: "report",
-        tokenType: models.TokenType.Embed,
-        accessToken: embedToken,
-        embedUrl: embedUrl,
-        id: "15a67320-0aed-4917-b7ce-5c09a3b8bb79",
-        permissions: models.Permissions.All,
-        settings: {
-          filterPaneEnabled: false,
-          navContentPaneEnabled: true
-        }
-      };
+    #reportContainer {
+      width: 100%;
+      height: 800px;
+      display: none;
+      background-color: black;
+    } 
 
-      const container = document.getElementById("reportContainer");
-      powerbi.reset(container); 
-      powerbi.embed(container, config);
-
-      console.log("Report embedded successfully");
+    /* Remove iframe border */
+    #reportContainer iframe {
+      border: none !important; 
+      frameBorder: 0;
     }
+  </style>
+</head>
+<body>
+  <div id="reportContainer"></div> 
 
-    async function initialize() {
-      try {
-        await fetchEmbedToken();
-        embedReport();
-
-        // Refresh embed token every 40 minutes
-        const refreshInterval = (45 * 60 * 1000) - (5 * 60 * 1000);
-        setInterval(async () => {
-          try {
-            console.log("Refreshing embed token...");
-            await fetchEmbedToken();
-            embedReport();
-            console.log("Embed token refreshed successfully");
-          } catch (error) {
-            console.error("Failed to refresh embed token:", error);
-          }
-        }, refreshInterval);
-      } catch (error) {
-        console.error("Error initializing report:", error);
+  <script>
+    (async function () {
+      const backendUrl = "https://ai-dashboard-mn-backend.onrender.com";
+      const correctPassword = "ATTIC";
+      
+      function requestPassword() {
+        const enteredPassword = prompt("Please enter the password to access the dashboard:");
+        return enteredPassword === correctPassword;
       }
-    }
 
-    if (requestPassword()) {
-      document.getElementById("reportContainer").style.display = "block";
-      initialize();
-    } else {
-      alert("Incorrect password. Access denied.");
-    }
-  })();
-</script>
+      let embedToken = null;
+      const embedUrl = "https://app.powerbi.com/reportEmbed?reportId=15a67320-0aed-4917-b7ce-5c09a3b8bb79&groupId=49d1c1dc-0da0-4f42-ad72-40543f62dff8&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUNBTkFEQS1DRU5UUkFMLXJlZGlyZWN0LmFuYWx5c2lzLndpbmRvd3MubmV0IiwiZW1iZWRGZWF0dXJlcyI6eyJ1c2FnZU1ldHJpY3NWTmV4dCI6dHJ1ZX19";
+
+      async function fetchEmbedToken() {
+        const response = await fetch(`${backendUrl}/embed-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) throw new Error('Failed to get embed token');
+        const data = await response.json();
+        embedToken = data.token;
+      }
+
+      function embedReport() {
+        const models = window["powerbi-client"].models;
+        const config = {
+          type: "report",
+          tokenType: models.TokenType.Embed,
+          accessToken: embedToken,
+          embedUrl: embedUrl,
+          id: "15a67320-0aed-4917-b7ce-5c09a3b8bb79",
+          permissions: models.Permissions.All,
+          settings: {
+            filterPaneEnabled: false,
+            navContentPaneEnabled: true
+          }
+        };
+
+        const container = document.getElementById("reportContainer");
+        powerbi.reset(container); 
+        powerbi.embed(container, config);
+
+        console.log("Report embedded successfully");
+      }
+
+      async function initialize() {
+        try {
+          await fetchEmbedToken();
+          embedReport();
+
+          // Refresh embed token every 40 minutes
+          const refreshInterval = (45 * 60 * 1000) - (5 * 60 * 1000);
+          setInterval(async () => {
+            try {
+              console.log("Refreshing embed token...");
+              await fetchEmbedToken();
+              embedReport();
+              console.log("Embed token refreshed successfully");
+            } catch (error) {
+              console.error("Failed to refresh embed token:", error);
+            }
+          }, refreshInterval);
+        } catch (error) {
+          console.error("Error initializing report:", error);
+        }
+      }
+
+      if (requestPassword()) {
+        document.getElementById("reportContainer").style.display = "block";
+        initialize();
+      } else {
+        alert("Incorrect password. Access denied.");
+      }
+    })();
+  </script>
+</body>
+</html>
