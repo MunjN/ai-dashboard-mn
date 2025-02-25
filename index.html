@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Dashboard Embedded</title>
+  <title>ATTIC Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.1/dist/powerbi.min.js"></script>
   <style>
     body {
@@ -42,7 +42,9 @@
 
       try {
         console.log("Fetching /config...");
-        const configResponse = await fetch('/config');
+        const backendUrl = "https://ai-dashboard-mn-backend.onrender.com";
+        const configResponse = await fetch(`${backendUrl}/config`);
+
 
         if (!configResponse.ok) {
           throw new Error(`HTTP error! Status: ${configResponse.status}`);
