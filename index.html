@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ATTIC Dashboard</title>
+  <title>AI Dashboard Embedded</title>
   <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.1/dist/powerbi.min.js"></script>
   <style>
     body {
@@ -41,13 +41,29 @@
       let backendUrl, correctPassword, embedUrl, reportId;
 
       try {
-        // Fetch config dynamically from backend
+        console.log("Fetching /config...");
         const configResponse = await fetch('/config');
-        const configData = await configResponse.json();
-        backendUrl = configData.backendUrl;
-        correctPassword = configData.correctPassword;
-        embedUrl = configData.embedUrl;
-        reportId = configData.reportId;
+
+        if (!configResponse.ok) {
+          throw new Error(`HTTP error! Status: ${configResponse.status}`);
+        }
+
+        const text = await configResponse.text();
+        console.log("Raw response:", text); // Debugging step
+        
+        // Ensure it's valid JSON before parsing
+        try {
+          const configData = JSON.parse(text);
+          console.log("Parsed JSON:", configData);
+
+          backendUrl = configData.backendUrl;
+          correctPassword = configData.correctPassword;
+          embedUrl = configData.embedUrl;
+          reportId = configData.reportId;
+        } catch (jsonError) {
+          console.error("JSON parsing error:", jsonError);
+          return;
+        }
       } catch (error) {
         console.error("Failed to fetch configuration:", error);
         return;
@@ -61,14 +77,17 @@
       let embedToken = null;
 
       async function fetchEmbedToken() {
+        console.log("Fetching embed token...");
         const response = await fetch(`${backendUrl}/embed-token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
 
-        if (!response.ok) throw new Error('Failed to get embed token');
+        if (!response.ok) throw new Error(`Failed to get embed token. Status: ${response.status}`);
+        
         const data = await response.json();
         embedToken = data.token;
+        console.log("Embed token fetched successfully.");
       }
 
       function embedReport() {
