@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Dashboard Embedded</title>
+  <title>ATTIC Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.1/dist/powerbi.min.js"></script>
   <style>
     body {
@@ -38,16 +38,26 @@
 
   <script>
     (async function () {
-      const backendUrl = "https://ai-dashboard-mn-backend.onrender.com";
-      const correctPassword = "ATTIC";
-      
+      let backendUrl, correctPassword, embedUrl, reportId;
+
+      try {
+        const configResponse = await fetch('/config');
+        const configData = await configResponse.json();
+        backendUrl = configData.backendUrl;
+        correctPassword = configData.correctPassword;
+        embedUrl = configData.embedUrl;
+        reportId = configData.reportId; // Fetching the reportId from backend
+      } catch (error) {
+        console.error("Failed to fetch configuration:", error);
+        return;
+      }
+
       function requestPassword() {
         const enteredPassword = prompt("Please enter the password to access the dashboard:");
         return enteredPassword === correctPassword;
       }
 
       let embedToken = null;
-      const embedUrl = "https://app.powerbi.com/reportEmbed?reportId=15a67320-0aed-4917-b7ce-5c09a3b8bb79&groupId=49d1c1dc-0da0-4f42-ad72-40543f62dff8&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUNBTkFEQS1DRU5UUkFMLXJlZGlyZWN0LmFuYWx5c2lzLndpbmRvd3MubmV0IiwiZW1iZWRGZWF0dXJlcyI6eyJ1c2FnZU1ldHJpY3NWTmV4dCI6dHJ1ZX19";
 
       async function fetchEmbedToken() {
         const response = await fetch(`${backendUrl}/embed-token`, {
@@ -67,7 +77,7 @@
           tokenType: models.TokenType.Embed,
           accessToken: embedToken,
           embedUrl: embedUrl,
-          id: "15a67320-0aed-4917-b7ce-5c09a3b8bb79",
+          id: reportId, // Now fetching id from backend instead of parsing URL
           permissions: models.Permissions.All,
           settings: {
             filterPaneEnabled: false,
