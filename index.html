@@ -41,12 +41,13 @@
       let backendUrl, correctPassword, embedUrl, reportId;
 
       try {
+        // Fetch config dynamically from backend
         const configResponse = await fetch('/config');
         const configData = await configResponse.json();
         backendUrl = configData.backendUrl;
         correctPassword = configData.correctPassword;
         embedUrl = configData.embedUrl;
-        reportId = configData.reportId; // Fetching the reportId from backend
+        reportId = configData.reportId;
       } catch (error) {
         console.error("Failed to fetch configuration:", error);
         return;
@@ -77,7 +78,7 @@
           tokenType: models.TokenType.Embed,
           accessToken: embedToken,
           embedUrl: embedUrl,
-          id: reportId, // Now fetching id from backend instead of parsing URL
+          id: reportId,
           permissions: models.Permissions.All,
           settings: {
             filterPaneEnabled: false,
@@ -114,6 +115,7 @@
         }
       }
 
+      // Prompt for password before initializing
       if (requestPassword()) {
         document.getElementById("reportContainer").style.display = "block";
         initialize();
