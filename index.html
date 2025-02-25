@@ -38,20 +38,17 @@
 
   <script>
     (async function () {
-      let backendUrl, correctPassword, embedUrl, reportId; // 🔹 Use let instead of const
-
+      let correctPassword, embedUrl, reportId; 
+      let backendUrl = "https://ai-dashboard-mn-backend.onrender.com";
       try {
-        console.log("Fetching /config...");
-        const configResponse = await fetch("https://ai-dashboard-mn-backend.onrender.com/config"); // 🔹 Directly use backend URL
+        const configResponse = await fetch("https://ai-dashboard-mn-backend.onrender.com/config"); 
 
         if (!configResponse.ok) {
           throw new Error(`HTTP error! Status: ${configResponse.status}`);
         }
 
         const configData = await configResponse.json();
-        console.log("Parsed JSON:", configData);
 
-        backendUrl = configData.backendUrl;
         correctPassword = configData.correctPassword;
         embedUrl = configData.embedUrl;
         reportId = configData.reportId;
